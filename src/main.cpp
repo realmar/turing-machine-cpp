@@ -118,11 +118,7 @@ result<1> sum(const int& a, const int& b) {
     tm.set_word(create_unary_expression(a, b));
 
     auto executor = tm.get_executor();
-
-    auto result = execution_result::not_finished;
-    while (result == execution_result::not_finished) {
-        result = executor->next();
-    }
+    auto result = executor->execute_to_finish();
 
     return process_result(result, tm, *executor, 0);
 }
@@ -180,11 +176,7 @@ result<2> subtract(const int& a, const int& b) {
     tm.set_word(create_unary_expression(a, b));
 
     auto executor = tm.get_executor();
-
-    auto result = execution_result::not_finished;
-    while (result == execution_result::not_finished) {
-        result = executor->next();
-    }
+    auto result = executor->execute_to_finish();
 
     return process_result(result, tm, *executor, 1);
 }

@@ -6,10 +6,11 @@
 #include "../turing_machine.hpp"
 #include "../graph/move_direction.hpp"
 #include "execution_result.hpp"
+#include "tm_executor.hpp"
 
 namespace realmar::turing {
     template<int N, typename T>
-    class tm_step_executor {
+    class tm_step_executor : public tm_executor<N, T> {
     private:
         turing_machine<N, T>& _turing_machine;
         std::vector<tape_iterator<T>> _iterators;
@@ -20,22 +21,22 @@ namespace realmar::turing {
     public:
         virtual ~tm_step_executor() = default;
 
-        explicit tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
-                                                              _current_node(&_turing_machine.get_start_node()) {
+        tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
+                                                     _current_node(&_turing_machine.get_start_node()) {
             for (auto&& tape : tm.get_tapes()) {
                 _iterators.emplace_back(tape.get_iterator());
             }
         }
 
-        int get_step_count() const {
+        int get_step_count() const override {
             return step_count;
         }
 
-        const std::vector<tm_operation<N, T>>& get_steps() const {
+        const std::vector<tm_operation<N, T>>& get_steps() const override {
             return steps;
         }
 
-        execution_result next() {
+        execution_result next() override {
             // setup
             std::vector<edge<N, T>*> edges = _turing_machine.get_connected_edges(*_current_node);
             std::array<symbol<T>*, N> symbols;

@@ -13,7 +13,7 @@
 namespace realmar::turing {
     // forward declaration
     template<int N, typename T>
-    class tm_step_executor;
+    class tm_auto_executor;
 
     template<int N, typename T>
     class turing_machine {
@@ -107,12 +107,11 @@ namespace realmar::turing {
             return _tapes;
         }
 
-        std::shared_ptr<tm_step_executor<N, T>> get_executor() {
+        std::shared_ptr<tm_auto_executor<N, T>> get_executor() {
             if (_start_node == nullptr) throw std::logic_error("Start node is null.");
             if (_final_node == nullptr) throw std::logic_error("Final node is null.");
 
-            return std::make_shared<tm_step_executor<N, T>>
-                    (*this);
+            return std::make_shared<tm_auto_executor<N, T>>(*this);
         }
 
         std::vector<edge<N, T>*> get_connected_edges(const node<N>& node) {
@@ -127,4 +126,4 @@ namespace realmar::turing {
     };
 }
 
-#include "executor/tm_step_executor.hpp"
+#include "executor/tm_auto_executor.hpp"
