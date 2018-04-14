@@ -2,9 +2,9 @@
 
 #include <vector>
 #include "tm_operation.hpp"
-#include "node.hpp"
-#include "turing_machine.hpp"
-#include "move_direction.hpp"
+#include "../graph/node.hpp"
+#include "../turing_machine.hpp"
+#include "../graph/move_direction.hpp"
 #include "execution_result.hpp"
 
 namespace realmar::turing {

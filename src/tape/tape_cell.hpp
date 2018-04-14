@@ -1,6 +1,6 @@
 #pragma once
 
-#include "symbol.hpp"
+#include "../graph/symbol.hpp"
 
 namespace realmar::turing {
     template<typename T>

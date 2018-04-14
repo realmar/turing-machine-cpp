@@ -1,8 +1,8 @@
 #include <string>
 #include <iostream>
 #include "turing_machine.hpp"
-#include "tm_auto_executor.hpp"
-#include "typedefs.hpp"
+#include "executor/tm_auto_executor.hpp"
+#include "utils/typedefs.hpp"
 
 using namespace realmar::turing;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "edge.hpp"
+#include "../graph/edge.hpp"
 
 namespace realmar::turing {
     template<int N, typename T>

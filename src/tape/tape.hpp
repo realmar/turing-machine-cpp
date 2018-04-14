@@ -2,7 +2,7 @@
 
 #include <memory>
 #include "tape_iterator.hpp"
-#include "typedefs.hpp"
+#include "../utils/typedefs.hpp"
 
 namespace realmar::turing {
     template<typename T>

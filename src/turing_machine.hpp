@@ -4,11 +4,11 @@
 #include <algorithm>
 #include <memory>
 
-#include "node.hpp"
-#include "edge.hpp"
-#include "vector_helpers.hpp"
-#include "tape.hpp"
-#include "typedefs.hpp"
+#include "graph/node.hpp"
+#include "graph/edge.hpp"
+#include "utils/vector_helpers.hpp"
+#include "tape/tape.hpp"
+#include "utils/typedefs.hpp"
 
 namespace realmar::turing {
     // forward declaration
@@ -127,4 +127,4 @@ namespace realmar::turing {
     };
 }
 
-#include "tm_step_executor.hpp"
+#include "executor/tm_step_executor.hpp"

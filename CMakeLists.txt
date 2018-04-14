@@ -3,9 +3,9 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-project ("TuringMachine")
+project ("src")
 
 set(CMAKE_CXX_STANDARD 17)
 
 # Include sub-projects.
-add_subdirectory ("TuringMachine")
+add_subdirectory ("src")
