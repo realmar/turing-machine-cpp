@@ -21,8 +21,8 @@ namespace realmar::turing {
         std::vector<node<N>> _nodes;
         std::vector<edge<N, T>> _edges;
 
-        const node<N>* _start_node = nullptr;
-        const node<N>* _final_node = nullptr;
+        std::shared_ptr<node<N>> _start_node = nullptr;
+        std::shared_ptr<node<N>> _final_node = nullptr;
         std::array<tape<T>, N> _tapes;
 
         node<N>* get_node_by_name(const std::string& name) {
@@ -65,10 +65,10 @@ namespace realmar::turing {
             auto node2 = get_node_by_name(node2_name);
 
             if (node1 == nullptr)
-                throw std::invalid_argument("Node1 not found.");
+                throw std::invalid_argument("Node " + node1_name + " not found.");
 
             if (node2 == nullptr)
-                throw std::invalid_argument("Node2 not found.");
+                throw std::invalid_argument("Node " + node2_name + " not found.");
 
             add_edge(*node1, *node2, edge_args);
         }
@@ -78,8 +78,8 @@ namespace realmar::turing {
         }
 
         void set_start_node(const std::string& node_name) {
-            auto node = get_node_by_name_or_throw(node_name);
-            _start_node = node;
+            auto n = get_node_by_name_or_throw(node_name);
+            _start_node = std::make_shared<node<N>>(n->get_name());
         }
 
         const node<N>& get_start_node() const {
@@ -91,8 +91,8 @@ namespace realmar::turing {
         }
 
         void set_final_node(const std::string& node_name) {
-            auto node = get_node_by_name_or_throw(node_name);
-            _final_node = node;
+            auto n = get_node_by_name_or_throw(node_name);
+            _final_node = std::make_shared<node<N>>(n->get_name());
         }
 
         const node<N>& get_final_node() const {

@@ -14,8 +14,8 @@ namespace realmar::turing {
         const std::array<symbol<T>, N> _write_symbols;
         const std::array<move_direction, N> _move_directions;
 
-        const node<N>& from_node;
-        const node<N>& to_node;
+        const node<N> from_node;
+        const node<N> to_node;
     public:
         virtual ~edge() = default;
 
