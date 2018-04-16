@@ -1,12 +1,16 @@
 #pragma once
 
-#include "int_machine_provider.hpp"
+#include "tm_provider.hpp"
 
 namespace realmar::turing {
-    class subtract_machine_provider : public int_machine_provider<2, int> {
+    class subtract_machine_provider : public tm_provider<2, int> {
     public:
-        subtract_machine_provider(const int& a, const int& b);
+        subtract_machine_provider() {
+            tm_provider_factory::register_provider(std::make_shared<subtract_machine_provider>(*this));
+        }
 
-        turing_machine<2, int> get() override;
+        std::string get_tm_name() override;
+
+        turing_machine<2, int> get_tm() override;
     };
 }

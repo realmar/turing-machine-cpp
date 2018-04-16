@@ -1,17 +1,18 @@
 #include "multiply_machine_provider.hpp"
 #include "../utils/misc.hpp"
 
-realmar::turing::multiply_machine_provider::multiply_machine_provider(const int& a, const int& b)
-        : int_machine_provider<3, int>(a, b) {}
+std::string realmar::turing::multiply_machine_provider::get_tm_name() {
+    return "Multiply Machine";
+}
 
-realmar::turing::turing_machine<3, int> realmar::turing::multiply_machine_provider::get() {
+realmar::turing::turing_machine<3, int> realmar::turing::multiply_machine_provider::get_tm() {
     turing_machine<3, int> tm;
 
-    tm.add_node(node<3>("q0"));
-    tm.add_node(node<3>("q1"));
-    tm.add_node(node<3>("q2"));
-    tm.add_node(node<3>("q3"));
-    tm.add_node(node<3>("q4"));
+    tm.add_node(node("q0"));
+    tm.add_node(node("q1"));
+    tm.add_node(node("q2"));
+    tm.add_node(node("q3"));
+    tm.add_node(node("q4"));
 
     {
         edge_args<3, int> args = {
@@ -123,7 +124,9 @@ realmar::turing::turing_machine<3, int> realmar::turing::multiply_machine_provid
 
     tm.set_start_node("q0");
     tm.set_final_node("q4");
-    tm.set_word(create_unary_expression(number1, number2));
 
     return tm;
 }
+
+// create instance and register with factory
+static realmar::turing::multiply_machine_provider prov;

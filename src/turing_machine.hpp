@@ -9,6 +9,7 @@
 #include "utils/vector_helpers.hpp"
 #include "tape/tape.hpp"
 #include "utils/typedefs.hpp"
+#include "abstract_turing_machine.hpp"
 
 namespace realmar::turing {
     // forward declaration
@@ -16,23 +17,23 @@ namespace realmar::turing {
     class tm_auto_executor;
 
     template<int N, typename T>
-    class turing_machine {
+    class turing_machine : public abstract_turing_machine {
     private:
-        std::vector<node<N>> _nodes;
+        std::vector<node> _nodes;
         std::vector<edge<N, T>> _edges;
 
-        std::shared_ptr<node<N>> _start_node = nullptr;
-        std::shared_ptr<node<N>> _final_node = nullptr;
+        std::shared_ptr<node> _start_node = nullptr;
+        std::shared_ptr<node> _final_node = nullptr;
         std::array<tape<T>, N> _tapes;
 
-        node<N>* get_node_by_name(const std::string& name) {
+        node* get_node_by_name(const std::string& name) {
             auto result = std::find_if(_nodes.begin(), _nodes.end(),
                                        [name](const auto& n) { return n.get_name() == name; });
 
             return result != _nodes.end() ? &*result : nullptr;
         }
 
-        node<N>* get_node_by_name_or_throw(const std::string& name) {
+        node* get_node_by_name_or_throw(const std::string& name) {
             auto node = get_node_by_name(name);
             if (node == nullptr) throw std::invalid_argument("Node not found.");
 
@@ -44,7 +45,7 @@ namespace realmar::turing {
 
         turing_machine() = default;
 
-        void add_node(const node<N>& node) {
+        void add_node(const node& node) {
             if (get_node_by_name(node.get_name()) != nullptr) {
                 throw std::invalid_argument("There is already a node with this name present.");
             }
@@ -52,7 +53,7 @@ namespace realmar::turing {
             _nodes.emplace_back(node);
         }
 
-        void add_edge(const node<N>& node1, const node<N>& node2, const edge_args<N, T>& edge_args) {
+        void add_edge(const node& node1, const node& node2, const edge_args<N, T>& edge_args) {
             if (IS_IN_VECTOR(_nodes, node1) && IS_IN_VECTOR(_nodes, node2)) {
                 _edges.emplace_back(edge<N, T>(node1, node2, edge_args));
             } else {
@@ -73,29 +74,29 @@ namespace realmar::turing {
             add_edge(*node1, *node2, edge_args);
         }
 
-        void set_start_node(const node<N>& node) {
+        void set_start_node(const node& node) {
             set_start_node(node.get_name());
         }
 
         void set_start_node(const std::string& node_name) {
             auto n = get_node_by_name_or_throw(node_name);
-            _start_node = std::make_shared<node<N>>(n->get_name());
+            _start_node = std::make_shared<node>(n->get_name());
         }
 
-        const node<N>& get_start_node() const {
+        const node& get_start_node() const {
             return *_start_node;
         }
 
-        void set_final_node(const node<N>& node) {
+        void set_final_node(const node& node) {
             set_final_node(node.get_name());
         }
 
         void set_final_node(const std::string& node_name) {
             auto n = get_node_by_name_or_throw(node_name);
-            _final_node = std::make_shared<node<N>>(n->get_name());
+            _final_node = std::make_shared<node>(n->get_name());
         }
 
-        const node<N>& get_final_node() const {
+        const node& get_final_node() const {
             return *_final_node;
         }
 
@@ -107,14 +108,18 @@ namespace realmar::turing {
             return _tapes;
         }
 
-        std::shared_ptr<tm_auto_executor<N, T>> get_executor() {
+        std::shared_ptr<tm_auto_executor<N, T>> get_concrete_executor() {
             if (_start_node == nullptr) throw std::logic_error("Start node is null.");
             if (_final_node == nullptr) throw std::logic_error("Final node is null.");
 
             return std::make_shared<tm_auto_executor<N, T>>(*this);
+        };
+
+        std::shared_ptr<abstract_tm_executor> get_executor() override {
+            return get_concrete_executor();
         }
 
-        std::vector<edge<N, T>*> get_connected_edges(const node<N>& node) {
+        std::vector<edge<N, T>*> get_connected_edges(const node& node) {
             std::vector<edge<N, T>*> edges;
             for (edge<N, T>& edge : _edges) {
                 if (edge.get_from_node() == node)

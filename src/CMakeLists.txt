@@ -8,20 +8,35 @@ add_subdirectory("tape")
 add_subdirectory("presentation")
 add_subdirectory("machines")
 
-file(GLOB main
-        "*.hpp"
-        "*.cpp")
+file(GLOB headers_tm
+        turing_machine.hpp
+        abstract_turing_machine.hpp)
 
-add_executable(TuringMachine
-        ${main}
+file(GLOB cli_tm tm.cpp)
+file(GLOB cli_tm_graphs tm_graph.cpp)
 
-        ${impl_utils}
-        ${impl_machines}
-        ${impl_presentation}
-
+set(headers_all
+        ${headers_tm}
         ${headers_executor}
         ${headers_utils}
         ${headers_graph}
         ${headers_tape}
         ${headers_presentation}
         ${headers_machines})
+
+set(impl_all
+        ${impl_utils}
+        ${impl_machines}
+        ${impl_presentation})
+
+add_executable(tm
+        ${cli_tm}
+
+        ${headers_all}
+        ${impl_all})
+
+add_executable(tm_graph
+        ${cli_tm_graphs}
+
+        ${headers_all}
+        ${impl_all})

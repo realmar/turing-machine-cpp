@@ -1,16 +1,17 @@
 #include "sum_machine_provider.hpp"
 #include "../utils/misc.hpp"
 
-realmar::turing::sum_machine_provider::sum_machine_provider(const int& a, const int& b)
-        : int_machine_provider<1, int>(a, b) {}
+std::string realmar::turing::sum_machine_provider::get_tm_name() {
+    return "Sum Machine";
+}
 
-realmar::turing::turing_machine<1, int> realmar::turing::sum_machine_provider::get() {
+realmar::turing::turing_machine<1, int> realmar::turing::sum_machine_provider::get_tm() {
     turing_machine<1, int> tm;
 
-    tm.add_node(node<1>("q0"));
-    tm.add_node(node<1>("q1"));
-    tm.add_node(node<1>("q2"));
-    tm.add_node(node<1>("q3"));
+    tm.add_node(node("q0"));
+    tm.add_node(node("q1"));
+    tm.add_node(node("q2"));
+    tm.add_node(node("q3"));
 
     {
         edge_args<1, int> args = {
@@ -63,7 +64,9 @@ realmar::turing::turing_machine<1, int> realmar::turing::sum_machine_provider::g
 
     tm.set_start_node("q0");
     tm.set_final_node("q2");
-    tm.set_word(create_unary_expression(number1, number2));
 
     return tm;
 }
+
+// create instance and register with factory
+static realmar::turing::sum_machine_provider prov;

@@ -3,7 +3,6 @@
 #include <string>
 
 namespace realmar::turing {
-    template<int N>
     class node {
     private:
         const std::string _name;
@@ -18,11 +17,11 @@ namespace realmar::turing {
             return _name;
         }
 
-        bool operator==(const node<N>& other) const {
+        bool operator==(const node& other) const {
             return _name == other.get_name();
         }
 
-        bool operator!=(const node<N>& other) const {
+        bool operator!=(const node& other) const {
             return !(*this == other);
         }
     };

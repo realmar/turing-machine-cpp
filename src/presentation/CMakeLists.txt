@@ -1,9 +1,11 @@
 file(GLOB headers
-        input_executor.hpp
+        input_executor_runner.hpp
         user_input.hpp
-        generic_input_executor.hpp)
+        executor_runner.hpp
+        utils.hpp)
 set(headers_presentation ${headers} PARENT_SCOPE)
 
 file(GLOB impl
-        user_input.cpp)
+        user_input.cpp
+        utils.cpp)
 set(impl_presentation ${impl} PARENT_SCOPE)

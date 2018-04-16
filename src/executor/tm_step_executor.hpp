@@ -14,7 +14,7 @@ namespace realmar::turing {
     private:
         turing_machine<N, T>& _turing_machine;
         std::vector<tape_iterator<T>> _iterators;
-        const node<N>* _current_node;
+        const node* _current_node;
         int step_count = 0;
 
         inline std::array<symbol<T>*, N> get_symbols() {
