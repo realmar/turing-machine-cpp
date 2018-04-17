@@ -15,7 +15,12 @@ namespace realmar::turing {
         turing_machine<N, T>& _turing_machine;
         std::vector<tape_iterator<T>> _iterators;
         const node* _current_node;
-        int step_count = 0;
+
+        tm_operation<N, T> _initial_state;
+        int step_count = -1;
+        std::vector<tm_operation<N, T>> _steps;
+
+        std::shared_ptr<edge<N, T>> last_matched_edge = nullptr;
 
         inline std::array<symbol<T>*, N> get_symbols() {
             std::array<symbol<T>*, N> symbols;
@@ -24,11 +29,12 @@ namespace realmar::turing {
             return symbols;
         }
 
-        inline const edge<N, T>*
-        get_match(const std::vector<edge<N, T>*>& edges, const std::array<symbol<T>*, N>& symbols) {
-            const edge<N, T>* matched = nullptr;
+        inline const std::shared_ptr<edge<N, T>>
+        get_match(const std::vector<std::shared_ptr<edge<N, T>>>& edges,
+                  const std::array<symbol<T>*, N>& symbols) {
+            std::shared_ptr<edge<N, T>> matched = nullptr;
 
-            for (edge<N, T>* edge : edges) {
+            for (auto&& edge : edges) {
                 const std::array<symbol<T>, N>& s = edge->get_read_symbols();
                 for (auto i = 0; i < s.size(); ++i) {
                     if (s.at(i) != *symbols.at(i)) {
@@ -45,7 +51,11 @@ namespace realmar::turing {
             return matched;
         };
 
-        inline void create_tm_operation_from_current_state(const edge<N, T>* matched, const execution_result& result) {
+        inline tm_operation<N, T>
+        create_tm_operation_from_current_state(const std::shared_ptr<node> from_node,
+                                               const std::shared_ptr<node> to_node,
+                                               const std::shared_ptr<edge<N, T>> matched,
+                                               const execution_result& result) {
             std::array<word<std::shared_ptr<T>>, N> tape_states;
             std::array<int, N> head_positions;
 
@@ -66,29 +76,34 @@ namespace realmar::turing {
                 ++i;
             }
 
-            steps.emplace_back(tm_operation<N, T>(step_count++, matched, result, tape_states, head_positions));
+            return tm_operation<N, T>(step_count++, from_node, to_node, matched, result, tape_states, head_positions);
         }
 
-    protected:
-        std::vector<tm_operation<N, T>> steps;
     public:
         virtual ~tm_step_executor() = default;
 
         tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
-                                                     _current_node(&_turing_machine.get_start_node()) {
+                                                     _current_node(&_turing_machine.get_start_node()),
+                                                     _initial_state(create_tm_operation_from_current_state(
+                                                             std::make_shared<node>(_turing_machine.get_start_node()),
+                                                             nullptr,
+                                                             nullptr,
+                                                             execution_result::not_finished)) {
             for (auto&& tape : tm.get_tapes()) {
                 _iterators.emplace_back(tape.get_iterator());
             }
-
-            create_tm_operation_from_current_state(nullptr, execution_result::not_finished);
         }
 
         int get_step_count() const override {
             return step_count;
         }
 
+        const tm_operation<N, T>& get_initial_state() const override {
+            return _initial_state;
+        }
+
         const std::vector<tm_operation<N, T>>& get_steps() const override {
-            return steps;
+            return _steps;
         }
 
         execution_result next() override {
@@ -117,6 +132,8 @@ namespace realmar::turing {
                     result = execution_result::cannot_finish;
                 }
             } else {
+                last_matched_edge = matched;
+
                 const std::array<symbol<T>, N>& write_symbols = matched->get_write_symbols();
                 auto move_directions = matched->get_move_directions();
 
@@ -154,7 +171,13 @@ namespace realmar::turing {
             // store metadata about performed operation
             //
 
-            create_tm_operation_from_current_state(matched, result);
+            std::shared_ptr<node> from_node = nullptr, to_node = nullptr;
+            if (last_matched_edge != nullptr) {
+                from_node = std::make_shared<node>(last_matched_edge->get_from_node());
+                to_node = std::make_shared<node>(last_matched_edge->get_to_node());
+            }
+
+            _steps.emplace_back(create_tm_operation_from_current_state(from_node, to_node, matched, result));
 
             return result;
         }

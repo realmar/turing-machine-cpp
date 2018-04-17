@@ -9,9 +9,9 @@
 namespace realmar::turing {
     class abstract_turing_machine {
     public:
-        virtual const std::vector<node>& get_nodes() = 0;
+        virtual const std::vector<std::shared_ptr<node>>& get_nodes() const = 0;
 
-        virtual std::vector<std::shared_ptr<abstract_edge>> get_edges() = 0;
+        virtual std::vector<std::shared_ptr<abstract_edge>> get_edges() const = 0;
 
         virtual const node& get_start_node() const = 0;
 

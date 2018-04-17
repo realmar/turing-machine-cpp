@@ -10,6 +10,8 @@ namespace realmar::turing {
     public:
         virtual ~tm_executor() = default;
 
+        virtual const tm_operation<N, T>& get_initial_state() const = 0;
+
         virtual const std::vector<tm_operation<N, T>>& get_steps() const = 0;
     };
 }

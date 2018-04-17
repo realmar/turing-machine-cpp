@@ -14,40 +14,43 @@ namespace realmar::turing {
     private:
         turing_machine<N, T> _turing_machine;
 
+        void print_operation(const tm_operation<N, T>& operation) {
+            for (auto i = 0; i < operation.tape_states.size(); ++i) {
+                std::cout << "tape " << i << ": ";
+                for (auto j = 0; j < operation.tape_states.at(i).size(); ++j) {
+                    bool is_head_pos = j == operation.head_positions.at(i);
+                    std::string node_name = "q?";
+                    if (operation.transition_edge != nullptr) {
+                        node_name = operation.transition_edge->get_from_node().get_name();
+                    }
+                    if (is_head_pos)
+                        std::cout << "|" << node_name << "|";
+                    auto s = operation.tape_states.at(i).at(j);
+                    std::string s_str = "⌊⌋";
+                    if (s != nullptr)
+                        s_str = std::to_string(*s);
+                    std::cout << s_str;
+                }
+                std::cout << std::endl;
+            }
+            std::cout << "execution result: " << operation.get_execution_result_string() << std::endl;
+        }
+
         void print_executor_state(const tm_executor<N, T>& executor) {
             auto steps = executor.get_steps();
             auto step_count = executor.get_step_count();
 
-            std::cout << "operations: " << std::endl;
-            int step_i = 0;
-            for (auto&& step : steps) {
-                for (auto i = 0; i < step.tape_states.size(); ++i) {
-                    std::cout << "tape " << i << ": ";
-                    for (auto j = 0; j < step.tape_states.at(i).size(); ++j) {
-                        bool is_head_pos = j == step.head_positions.at(i);
-                        std::string node_name = "q?";
-                        if (step.transition_edge != nullptr) {
-                            node_name = step.transition_edge->get_from_node().get_name();
-                        } else {
-                            // if we are in the first op then we will just take the next
-                            if (step_i == 0 && steps.size() > 1 && steps.at(1).transition_edge != nullptr) {
-                                node_name = steps.at(1).transition_edge->get_from_node().get_name();
-                            }
-                        }
-                        if (is_head_pos)
-                            std::cout << "|" << node_name << "|";
-                        auto s = step.tape_states.at(i).at(j);
-                        std::string s_str = "⌊⌋";
-                        if (s != nullptr)
-                            s_str = std::to_string(*s);
-                        std::cout << s_str;
-                    }
-                    std::cout << std::endl;
-                }
-                std::cout << "execution result: " << step.get_execution_result_string() << std::endl;
+            std::cout << "initial state:" << std::endl;
+            print_operation(executor.get_initial_state());
+            std::cout << std::endl;
+
+            int last_shown_steps = 4;
+            std::cout << "last " << last_shown_steps << " operations:" << std::endl;
+            for (auto i = steps.size() - 1; i < steps.size() - last_shown_steps || i < 0; --i) {
+                print_operation(steps.at(i));
                 std::cout << "--" << std::endl;
-                step_i++;
             }
+            std::cout << std::endl;
 
             std::cout << "transitions: ";
             for (auto i = 0; i < steps.size(); ++i) {
@@ -65,9 +68,10 @@ namespace realmar::turing {
                     }
                 }
             }
+            std::cout << std::endl << std::endl;
 
-            std::cout << std::endl;
             std::cout << "performed steps: " << step_count << std::endl;
+            std::cout << std::endl;
             std::cout << "tape contents:" << std::endl;
             int t_i = 0;
             for (auto&& tape : _turing_machine.get_tapes()) {
