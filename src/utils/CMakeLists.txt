@@ -5,4 +5,4 @@ file(GLOB headers
 set(headers_utils ${headers} PARENT_SCOPE)
 
 file(GLOB impl misc.cpp)
-set(impl_utils ${impl} PARENT_SCOPE)
+add_library(utils STATIC ${impl} ${headers})

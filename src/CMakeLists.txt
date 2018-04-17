@@ -24,19 +24,13 @@ set(headers_all
         ${headers_presentation}
         ${headers_machines})
 
-set(impl_all
-        ${impl_utils}
-        ${impl_machines}
-        ${impl_presentation})
-
 add_executable(tm
         ${cli_tm}
-
-        ${headers_all}
-        ${impl_all})
+        ${headers_all})
 
 add_executable(tm_dots
         ${cli_tm_dots}
+        ${headers_all})
 
-        ${headers_all}
-        ${impl_all})
+target_link_libraries(tm machines presentation utils)
+target_link_libraries(tm_dots machines presentation utils)

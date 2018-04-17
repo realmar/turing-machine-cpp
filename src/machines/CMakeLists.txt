@@ -12,4 +12,5 @@ file(GLOB impl
         subtract_machine_provider.cpp
         multiply_machine_provider.cpp
         tm_provider_factory.cpp)
-set(impl_machines ${impl} PARENT_SCOPE)
+
+add_library(machines STATIC ${impl} ${headers})

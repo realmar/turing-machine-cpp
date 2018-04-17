@@ -8,4 +8,4 @@ set(headers_presentation ${headers} PARENT_SCOPE)
 file(GLOB impl
         user_input.cpp
         utils.cpp)
-set(impl_presentation ${impl} PARENT_SCOPE)
+add_library(presentation STATIC ${impl} ${headers})
