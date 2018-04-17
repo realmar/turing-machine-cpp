@@ -117,8 +117,8 @@ std::string generate_label(const std::shared_ptr<abstract_edge>& edge) {
 }
 
 struct aggregated_edge final {
-    node from_node;
-    node to_node;
+    std::shared_ptr<node> from_node;
+    std::shared_ptr<node> to_node;
     std::vector<std::string> labels;
 };
 
@@ -143,8 +143,8 @@ int main(int argc, char** argv) {
         std::string dot_edges = "";
 
         replace(contents, "{name}", provider->get_tm_name());
-        replace(contents, "{node_start}", start_node.get_name());
-        replace(contents, "{node_final}", final_node.get_name());
+        replace(contents, "{node_start}", start_node->get_name());
+        replace(contents, "{node_final}", final_node->get_name());
 
         std::vector<aggregated_edge> a_edges;
         for (auto&& edge : edges) {
@@ -168,8 +168,8 @@ int main(int argc, char** argv) {
         for (auto&& edge : a_edges) {
             std::string de = dot_edge;
 
-            replace(de, "{node1}", edge.from_node.get_name());
-            replace(de, "{node2}", edge.to_node.get_name());
+            replace(de, "{node1}", edge.from_node->get_name());
+            replace(de, "{node2}", edge.to_node->get_name());
 
             std::string label;
             for (auto&& l : edge.labels) {
