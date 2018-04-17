@@ -3,5 +3,6 @@ file(GLOB headers
         edge_args.hpp
         move_direction.hpp
         node.hpp
-        symbol.hpp)
+        symbol.hpp
+        abstract_edge.hpp)
 set(headers_graph ${headers} PARENT_SCOPE)

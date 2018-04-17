@@ -13,7 +13,7 @@ file(GLOB headers_tm
         abstract_turing_machine.hpp)
 
 file(GLOB cli_tm tm.cpp)
-file(GLOB cli_tm_graphs tm_graph.cpp)
+file(GLOB cli_tm_dots tm_dots.cpp)
 
 set(headers_all
         ${headers_tm}
@@ -35,8 +35,8 @@ add_executable(tm
         ${headers_all}
         ${impl_all})
 
-add_executable(tm_graph
-        ${cli_tm_graphs}
+add_executable(tm_dots
+        ${cli_tm_dots}
 
         ${headers_all}
         ${impl_all})

@@ -5,10 +5,11 @@
 #include "edge_args.hpp"
 #include "symbol.hpp"
 #include "node.hpp"
+#include "abstract_edge.hpp"
 
 namespace realmar::turing {
     template<int N, typename T>
-    class edge {
+    class edge : public abstract_edge {
     private:
         const std::array<symbol<T>, N> _read_symbols;
         const std::array<symbol<T>, N> _write_symbols;
@@ -16,6 +17,20 @@ namespace realmar::turing {
 
         const node from_node;
         const node to_node;
+
+        std::vector<symbol<std::string>> symbols_to_string(const std::array<symbol<T>, N>& symbols) {
+            std::vector<symbol<std::string>> syms;
+            for (auto&& rs : symbols) {
+                if (rs.get_symbol() != nullptr) {
+                    syms.emplace_back(symbol(std::to_string(*rs.get_symbol())));
+                } else {
+                    syms.emplace_back(symbol<std::string>());
+                }
+            }
+
+            return syms;
+        }
+
     public:
         virtual ~edge() = default;
 
@@ -26,11 +41,11 @@ namespace realmar::turing {
                 _write_symbols(args.write_symbols),
                 _move_directions(args.move_directions) {}
 
-        const node& get_from_node() const {
+        const node& get_from_node() const override {
             return from_node;
         }
 
-        const node& get_to_node() const {
+        const node& get_to_node() const override {
             return to_node;
         }
 
@@ -44,6 +59,18 @@ namespace realmar::turing {
 
         const std::array<move_direction, N>& get_move_directions() const {
             return _move_directions;
+        }
+
+        std::vector<symbol<std::string>> get_read_symbols_as_string() override {
+            return symbols_to_string(_read_symbols);
+        }
+
+        std::vector<symbol<std::string>> get_write_symbols_as_string() override {
+            return symbols_to_string(_write_symbols);
+        }
+
+        std::vector<move_direction> get_move_directions_as_vector() override {
+            return std::vector<move_direction>(_move_directions.begin(), _move_directions.end());
         }
     };
 }

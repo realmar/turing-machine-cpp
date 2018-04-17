@@ -74,6 +74,19 @@ namespace realmar::turing {
             add_edge(*node1, *node2, edge_args);
         }
 
+        const std::vector<node>& get_nodes() override {
+            return _nodes;
+        }
+
+        std::vector<std::shared_ptr<abstract_edge>> get_edges() override {
+            std::vector<std::shared_ptr<abstract_edge>> edges;
+            for (auto&& e : _edges) {
+                edges.emplace_back(std::make_shared<edge<N, T>>(e));
+            }
+
+            return edges;
+        }
+
         void set_start_node(const node& node) {
             set_start_node(node.get_name());
         }
@@ -83,7 +96,7 @@ namespace realmar::turing {
             _start_node = std::make_shared<node>(n->get_name());
         }
 
-        const node& get_start_node() const {
+        const node& get_start_node() const override {
             return *_start_node;
         }
 
@@ -96,7 +109,7 @@ namespace realmar::turing {
             _final_node = std::make_shared<node>(n->get_name());
         }
 
-        const node& get_final_node() const {
+        const node& get_final_node() const override {
             return *_final_node;
         }
 
