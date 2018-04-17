@@ -88,6 +88,40 @@ get_platform_path_separator() {
 #endif
 }
 
+std::string generate_label(const std::shared_ptr<abstract_edge>& edge) {
+    std::string read, write, move;
+
+    for (auto&& item : edge->get_read_symbols_as_string()) read += to_string(item);
+    for (auto&& item : edge->get_write_symbols_as_string()) write += to_string(item);
+    for (auto&& item : edge->get_move_directions_as_vector()) {
+        switch (item) {
+            case right:
+                move += "R";
+                break;
+            case left:
+                move += "L";
+                break;
+            case stale:
+                move += "S";
+                break;
+        }
+    }
+
+    std::string label = read;
+    label += "/";
+    label += write;
+    label += ",";
+    label += move;
+
+    return label;
+}
+
+struct aggregated_edge final {
+    node from_node;
+    node to_node;
+    std::vector<std::string> labels;
+};
+
 // generate dot files of all turing machines
 int main(int argc, char** argv) {
     print_copyright();
@@ -112,39 +146,37 @@ int main(int argc, char** argv) {
         replace(contents, "{node_start}", start_node.get_name());
         replace(contents, "{node_final}", final_node.get_name());
 
+        std::vector<aggregated_edge> a_edges;
         for (auto&& edge : edges) {
+            auto result = std::find_if(a_edges.begin(), a_edges.end(), [&edge](const auto& x) {
+                return x.from_node == edge->get_from_node() && x.to_node == edge->get_to_node();
+            });
+
+            auto label = generate_label(edge);
+
+            if (result != a_edges.end()) {
+                result->labels.emplace_back(label);
+            } else {
+                a_edges.emplace_back(aggregated_edge{
+                        edge->get_from_node(),
+                        edge->get_to_node(),
+                        {label}
+                });
+            }
+        }
+
+        for (auto&& edge : a_edges) {
             std::string de = dot_edge;
 
-            replace(de, "{node1}", edge->get_from_node().get_name());
-            replace(de, "{node2}", edge->get_to_node().get_name());
+            replace(de, "{node1}", edge.from_node.get_name());
+            replace(de, "{node2}", edge.to_node.get_name());
 
-            std::string read = "";
-            std::string write = "";
-            std::string move = "";
-
-            for (auto&& item : edge->get_read_symbols_as_string()) read += to_string(item);
-            for (auto&& item : edge->get_write_symbols_as_string()) write += to_string(item);
-            for (auto&& item : edge->get_move_directions_as_vector()) {
-                switch (item) {
-                    case right:
-                        move += "R";
-                        break;
-                    case left:
-                        move += "L";
-                        break;
-                    case stale:
-                        move += "S";
-                        break;
-                }
+            std::string label;
+            for (auto&& l : edge.labels) {
+                label += l;
+                label += "\\n";
             }
-
-            std::string label = read;
-            label += "/";
-            label += write;
-            label += ",";
-            label += move;
             replace(de, "{label}", label);
-
             dot_edges += de;
         }
 
