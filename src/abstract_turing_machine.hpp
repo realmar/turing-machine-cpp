@@ -13,9 +13,9 @@ namespace realmar::turing {
 
         virtual std::vector<std::shared_ptr<abstract_edge>> get_edges() const = 0;
 
-        virtual const node& get_start_node() const = 0;
+        virtual const std::shared_ptr<node>& get_start_node() const = 0;
 
-        virtual const node& get_final_node() const = 0;
+        virtual const std::shared_ptr<node>& get_final_node() const = 0;
 
         virtual std::shared_ptr<abstract_tm_executor> get_executor() = 0;
     };

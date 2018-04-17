@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <map>
@@ -21,7 +22,9 @@ namespace realmar::turing {
                     bool is_head_pos = j == operation.head_positions.at(i);
                     std::string node_name = "q?";
                     if (operation.transition_edge != nullptr) {
-                        node_name = operation.transition_edge->get_from_node().get_name();
+                        node_name = operation.transition_edge->get_from_node()->get_name();
+                    } else if (operation.from_node != nullptr) {
+                        node_name = operation.from_node->get_name();
                     }
                     if (is_head_pos)
                         std::cout << "|" << node_name << "|";
@@ -46,7 +49,11 @@ namespace realmar::turing {
 
             int last_shown_steps = 4;
             std::cout << "last " << last_shown_steps << " operations:" << std::endl;
-            for (auto i = steps.size() - 1; i < steps.size() - last_shown_steps || i < 0; --i) {
+
+            int i_start = 0;
+            if (last_shown_steps < steps.size()) i_start = steps.size() - last_shown_steps;
+
+            for (auto i = i_start; i < steps.size(); ++i) {
                 print_operation(steps.at(i));
                 std::cout << "--" << std::endl;
             }
@@ -57,15 +64,13 @@ namespace realmar::turing {
                 auto edge = steps.at(i).transition_edge;
                 std::string from_node = "<?>", to_node = "<?>";
                 if (edge != nullptr) {
-                    from_node = steps.at(i).transition_edge->get_from_node().get_name();
-                    to_node = steps.at(i).transition_edge->get_to_node().get_name();
+                    from_node = steps.at(i).transition_edge->get_from_node()->get_name();
+                    to_node = steps.at(i).transition_edge->get_to_node()->get_name();
                 }
 
-                if (edge != nullptr && i != 0) {
-                    std::cout << from_node << " -> ";
-                    if (i + 1 == steps.size()) {
-                        std::cout << to_node;
-                    }
+                std::cout << from_node << " -> ";
+                if (i + 1 == steps.size()) {
+                    std::cout << to_node;
                 }
             }
             std::cout << std::endl << std::endl;

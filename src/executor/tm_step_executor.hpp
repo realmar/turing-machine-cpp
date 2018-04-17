@@ -14,9 +14,9 @@ namespace realmar::turing {
     private:
         turing_machine<N, T>& _turing_machine;
         std::vector<tape_iterator<T>> _iterators;
-        const node* _current_node;
+        std::shared_ptr<node> _current_node;
 
-        tm_operation<N, T> _initial_state;
+        std::shared_ptr<tm_operation<N, T>> _initial_state;
         int step_count = -1;
         std::vector<tm_operation<N, T>> _steps;
 
@@ -83,15 +83,16 @@ namespace realmar::turing {
         virtual ~tm_step_executor() = default;
 
         tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
-                                                     _current_node(&_turing_machine.get_start_node()),
-                                                     _initial_state(create_tm_operation_from_current_state(
-                                                             std::make_shared<node>(_turing_machine.get_start_node()),
-                                                             nullptr,
-                                                             nullptr,
-                                                             execution_result::not_finished)) {
+                                                     _current_node(_turing_machine.get_start_node()) {
             for (auto&& tape : tm.get_tapes()) {
                 _iterators.emplace_back(tape.get_iterator());
             }
+
+            _initial_state = std::make_shared<tm_operation<N, T>>(create_tm_operation_from_current_state(
+                    std::make_shared<node>(_turing_machine.get_start_node()),
+                    nullptr,
+                    nullptr,
+                    execution_result::not_finished));
         }
 
         int get_step_count() const override {
@@ -99,7 +100,7 @@ namespace realmar::turing {
         }
 
         const tm_operation<N, T>& get_initial_state() const override {
-            return _initial_state;
+            return *_initial_state;
         }
 
         const std::vector<tm_operation<N, T>>& get_steps() const override {
@@ -126,7 +127,7 @@ namespace realmar::turing {
 
             execution_result result;
             if (matched == nullptr) {
-                if (*_current_node == _turing_machine.get_final_node()) {
+                if (*_current_node == *_turing_machine.get_final_node()) {
                     result = execution_result::finished;
                 } else {
                     result = execution_result::cannot_finish;
@@ -153,14 +154,14 @@ namespace realmar::turing {
                     }
                 }
 
-                _current_node = &matched->get_to_node();
+                _current_node = matched->get_to_node();
 
                 // check if we can do another action
                 auto next_edges = _turing_machine.get_connected_edges(*_current_node);
                 auto next_symbols = get_symbols();
                 auto next_match = get_match(next_edges, next_symbols);
 
-                if (*_current_node == _turing_machine.get_final_node() && next_match == nullptr) {
+                if (*_current_node == *_turing_machine.get_final_node() && next_match == nullptr) {
                     result = execution_result::finished;
                 } else {
                     result = execution_result::not_finished;

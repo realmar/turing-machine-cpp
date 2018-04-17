@@ -16,7 +16,7 @@ namespace realmar::turing {
     class tm_auto_executor;
 
     template<int N, typename T>
-    class turing_machine : public abstract_turing_machine {
+    class turing_machine : public abstract_turing_machine, public std::enable_shared_from_this<turing_machine<N, T>> {
     private:
         std::vector<std::shared_ptr<node>> _nodes;
         std::vector<std::shared_ptr<edge<N, T>>> _edges;
@@ -39,14 +39,7 @@ namespace realmar::turing {
             return node;
         }
 
-        bool has_node(const node& node) {
-            return std::find_if(_nodes.begin(), _nodes.end(),
-                                [&node](const auto& item) { return item != nullptr && *item == node; }) != _nodes.end();
-        }
-
     public:
-        virtual ~turing_machine() = default;
-
         turing_machine() = default;
 
         void add_node(const node& new_node) {
@@ -58,11 +51,7 @@ namespace realmar::turing {
         }
 
         void add_edge(const node& node1, const node& node2, const edge_args<N, T>& edge_args) {
-            if (has_node(node1) && has_node(node2)) {
-                _edges.emplace_back(std::make_shared<edge<N, T>>(node1, node2, edge_args));
-            } else {
-                throw std::invalid_argument("Nodes not found in turing machine. Both nodes need to be present.");
-            }
+            add_edge(node1.get_name(), node2.get_name(), edge_args);
         }
 
         void add_edge(const std::string& node1_name, const std::string& node2_name, const edge_args <N, T>& edge_args) {
@@ -75,7 +64,7 @@ namespace realmar::turing {
             if (node2 == nullptr)
                 throw std::invalid_argument("Node " + node2_name + " not found.");
 
-            add_edge(*node1, *node2, edge_args);
+            _edges.emplace_back(std::make_shared<edge<N, T>>(node1, node2, edge_args));
         }
 
         const std::vector<std::shared_ptr<node>>& get_nodes() const override {
@@ -100,8 +89,8 @@ namespace realmar::turing {
             _start_node = n;
         }
 
-        const node& get_start_node() const override {
-            return *_start_node;
+        const std::shared_ptr<node>& get_start_node() const override {
+            return _start_node;
         }
 
         void set_final_node(const node& node) {
@@ -113,8 +102,8 @@ namespace realmar::turing {
             _final_node = n;
         }
 
-        const node& get_final_node() const override {
-            return *_final_node;
+        const std::shared_ptr<node>& get_final_node() const override {
+            return _final_node;
         }
 
         void set_word(const word<T>& word) {
@@ -139,7 +128,7 @@ namespace realmar::turing {
         std::vector<std::shared_ptr<edge<N, T>>> get_connected_edges(const node& node) {
             std::vector<std::shared_ptr<edge<N, T>>> edges;
             for (auto edge : _edges) {
-                if (edge->get_from_node() == node)
+                if (*edge->get_from_node() == node)
                     edges.emplace_back(edge);
             }
 

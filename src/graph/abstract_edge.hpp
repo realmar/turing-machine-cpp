@@ -9,9 +9,9 @@
 namespace realmar::turing {
     class abstract_edge {
     public:
-        virtual const node& get_from_node() const = 0;
+        virtual const std::shared_ptr<node>& get_from_node() const = 0;
 
-        virtual const node& get_to_node() const = 0;
+        virtual const std::shared_ptr<node>& get_to_node() const = 0;
 
         virtual std::vector<symbol<std::string>> get_read_symbols_as_string() = 0;
 
