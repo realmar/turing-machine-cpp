@@ -3,7 +3,7 @@
 #include <memory>
 #include "../presentation/executor_runner.hpp"
 #include "../abstract_turing_machine.hpp"
-#include "tm_provider_factory.hpp"
+#include "tm_provider_collection.hpp"
 
 namespace realmar::turing {
     class abstract_tm_provider {

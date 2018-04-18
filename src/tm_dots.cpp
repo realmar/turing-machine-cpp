@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "presentation/utils.hpp"
-#include "machines/tm_provider_factory.hpp"
+#include "machines/tm_provider_collection.hpp"
 
 using namespace realmar::turing;
 
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
 
     std::string out_directory = argv[1];
 
-    auto providers = tm_provider_factory::get_providers();
+    auto providers = tm_provider_collection::get_providers();
 
     for (auto&& provider : providers) {
         auto tm = provider->get_abstract_tm();
