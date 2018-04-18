@@ -63,7 +63,7 @@ realmar::turing::turing_machine<1, int> realmar::turing::sum_machine_provider::g
     }
 
     tm.set_start_node("q0");
-    tm.set_final_node("q2");
+    tm.set_final_node("q3");
 
     return tm;
 }

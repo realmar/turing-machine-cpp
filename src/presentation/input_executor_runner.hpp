@@ -15,27 +15,48 @@ namespace realmar::turing {
     private:
         turing_machine<N, T> _turing_machine;
 
+        inline void print_word(const tm_operation<N, T>& operation,
+                               const std::shared_ptr<node>& node,
+                               const word<std::shared_ptr<T>>& word,
+                               const int& head_position) {
+            for (auto j = 0; j < word.size(); ++j) {
+                bool is_head_pos = j == head_position;
+                std::string node_name = "q?";
+                if (node != nullptr) node_name = node->get_name();
+                if (is_head_pos)
+                    std::cout << "|" << node_name << "|";
+                auto s = word.at(j);
+                std::string s_str = "⌊⌋";
+                if (s != nullptr)
+                    s_str = std::to_string(*s);
+
+                std::cout << s_str;
+            }
+        }
+
         void print_operation(const tm_operation<N, T>& operation) {
-            for (auto i = 0; i < operation.tape_states.size(); ++i) {
+            std::shared_ptr<node> from_node = nullptr, to_node = nullptr;
+
+            if (operation.transition_edge != nullptr) {
+                from_node = operation.transition_edge->get_from_node();
+                to_node = operation.transition_edge->get_to_node();
+            } else {
+                from_node = operation.from_node;
+                to_node = operation.to_node;
+            }
+
+            for (auto i = 0; i < operation.tape_states_before.size(); ++i) {
                 std::cout << "tape " << i << ": ";
-                for (auto j = 0; j < operation.tape_states.at(i).size(); ++j) {
-                    bool is_head_pos = j == operation.head_positions.at(i);
-                    std::string node_name = "q?";
-                    if (operation.transition_edge != nullptr) {
-                        node_name = operation.transition_edge->get_from_node()->get_name();
-                    } else if (operation.from_node != nullptr) {
-                        node_name = operation.from_node->get_name();
-                    }
-                    if (is_head_pos)
-                        std::cout << "|" << node_name << "|";
-                    auto s = operation.tape_states.at(i).at(j);
-                    std::string s_str = "⌊⌋";
-                    if (s != nullptr)
-                        s_str = std::to_string(*s);
-                    std::cout << s_str;
-                }
+                print_word(operation, from_node, operation.tape_states_before.at(i),
+                           operation.head_positions_before.at(i));
+                std::cout << " -> ";
+                print_word(operation, to_node, operation.tape_states_after.at(i), operation.head_positions_after.at(i));
                 std::cout << std::endl;
             }
+
+            std::cout << "transition: <"
+                      << (from_node == nullptr ? "?" : from_node->get_name().c_str()) << "> -> <"
+                      << (to_node == nullptr ? "?" : to_node->get_name().c_str()) << ">" << std::endl;
             std::cout << "execution result: " << operation.get_execution_result_string() << std::endl;
         }
 
@@ -60,18 +81,27 @@ namespace realmar::turing {
             std::cout << std::endl;
 
             std::cout << "transitions: ";
+            std::shared_ptr<edge<N, T>> last_edge = nullptr;
             for (auto i = 0; i < steps.size(); ++i) {
                 auto edge = steps.at(i).transition_edge;
                 std::string from_node = "<?>", to_node = "<?>";
                 if (edge != nullptr) {
                     from_node = steps.at(i).transition_edge->get_from_node()->get_name();
                     to_node = steps.at(i).transition_edge->get_to_node()->get_name();
+                } else {
+                    if (last_edge != nullptr) {
+                        from_node = last_edge->get_to_node()->get_name();
+                        to_node = last_edge->get_to_node()->get_name();
+                    }
                 }
 
                 std::cout << from_node << " -> ";
                 if (i + 1 == steps.size()) {
                     std::cout << to_node;
                 }
+
+                if (edge != nullptr)
+                    last_edge = edge;
             }
             std::cout << std::endl << std::endl;
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <tuple>
 #include "tm_operation.hpp"
 #include "../graph/node.hpp"
 #include "../turing_machine.hpp"
@@ -9,6 +10,8 @@
 #include "tm_executor.hpp"
 
 namespace realmar::turing {
+#define tape_states_head_pos_tuple std::tuple<std::array<word<std::shared_ptr<T>>, N>, std::array<int, N>>
+
     template<int N, typename T>
     class tm_step_executor : public tm_executor<N, T> {
     private:
@@ -20,10 +23,11 @@ namespace realmar::turing {
         int step_count = -1;
         std::vector<tm_operation<N, T>> _steps;
 
-        std::shared_ptr<edge<N, T>> last_matched_edge = nullptr;
+        std::shared_ptr<node> to_node_temp = nullptr, from_node_temp = nullptr;
 
         inline std::array<symbol<T>*, N> get_symbols() {
-            std::array<symbol<T>*, N> symbols;
+            std
+            ::array<symbol<T>*, N> symbols;
             for (auto i = 0; i < _iterators.size(); ++i)
                 symbols.at(i) = &_iterators.at(i).get_current_symbol();
             return symbols;
@@ -31,7 +35,9 @@ namespace realmar::turing {
 
         inline const std::shared_ptr<edge<N, T>>
         get_match(const std::vector<std::shared_ptr<edge<N, T>>>& edges,
-                  const std::array<symbol<T>*, N>& symbols) {
+                  const std
+                  ::array<symbol<T>*, N>& symbols
+        ) {
             std::shared_ptr<edge<N, T>> matched = nullptr;
 
             for (auto&& edge : edges) {
@@ -51,12 +57,8 @@ namespace realmar::turing {
             return matched;
         };
 
-        inline tm_operation<N, T>
-        create_tm_operation_from_current_state(const std::shared_ptr<node> from_node,
-                                               const std::shared_ptr<node> to_node,
-                                               const std::shared_ptr<edge<N, T>> matched,
-                                               const execution_result& result) {
-            std::array<word<std::shared_ptr<T>>, N> tape_states;
+        tape_states_head_pos_tuple record_tape_states_and_head_pos_from_iterators() {
+            std::array<word<std::shared_ptr<T >>, N> tape_states;
             std::array<int, N> head_positions;
 
             int i = 0;
@@ -76,7 +78,27 @@ namespace realmar::turing {
                 ++i;
             }
 
-            return tm_operation<N, T>(step_count++, from_node, to_node, matched, result, tape_states, head_positions);
+            return std
+            ::make_tuple(tape_states, head_positions);
+        };
+
+        inline tm_operation<N, T>
+        create_tm_operation_from_current_state(const std::shared_ptr<node> from_node,
+                                               const std::shared_ptr<node> to_node,
+                                               const std::shared_ptr<edge<N, T>> matched,
+                                               const execution_result& result,
+                                               const tape_states_head_pos_tuple& before_states) {
+
+            auto states = record_tape_states_and_head_pos_from_iterators();
+            return tm_operation<N, T>(step_count++,
+                                      from_node,
+                                      to_node,
+                                      matched,
+                                      result,
+                                      std::get<0>(before_states),
+                                      std::get<0>(states),
+                                      std::get<1>(before_states),
+                                      std::get<1>(states));
         }
 
     public:
@@ -88,11 +110,13 @@ namespace realmar::turing {
                 _iterators.emplace_back(tape.get_iterator());
             }
 
+            auto states = record_tape_states_and_head_pos_from_iterators();
             _initial_state = std::make_shared<tm_operation<N, T>>(create_tm_operation_from_current_state(
                     std::make_shared<node>(_turing_machine.get_start_node()),
                     nullptr,
                     nullptr,
-                    execution_result::not_finished));
+                    execution_result::not_finished,
+                    states));
         }
 
         int get_step_count() const override {
@@ -122,18 +146,28 @@ namespace realmar::turing {
             auto matched = get_match(edges, symbols);
 
             //
+            // record state before operation
+            //
+
+            auto before_state = record_tape_states_and_head_pos_from_iterators();
+
+            //
             // perform operation
             //
 
-            execution_result result;
+            auto result = execution_result::not_finished;
             if (matched == nullptr) {
                 if (*_current_node == *_turing_machine.get_final_node()) {
+                    from_node_temp = _current_node;
+                    to_node_temp = _current_node;
+
                     result = execution_result::finished;
                 } else {
                     result = execution_result::cannot_finish;
                 }
             } else {
-                last_matched_edge = matched;
+                from_node_temp = matched->get_from_node();
+                to_node_temp = matched->get_to_node();
 
                 const std::array<symbol<T>, N>& write_symbols = matched->get_write_symbols();
                 auto move_directions = matched->get_move_directions();
@@ -155,30 +189,17 @@ namespace realmar::turing {
                 }
 
                 _current_node = matched->get_to_node();
-
-                // check if we can do another action
-                auto next_edges = _turing_machine.get_connected_edges(*_current_node);
-                auto next_symbols = get_symbols();
-                auto next_match = get_match(next_edges, next_symbols);
-
-                if (*_current_node == *_turing_machine.get_final_node() && next_match == nullptr) {
-                    result = execution_result::finished;
-                } else {
-                    result = execution_result::not_finished;
-                }
             }
 
             //
             // store metadata about performed operation
             //
 
-            std::shared_ptr<node> from_node = nullptr, to_node = nullptr;
-            if (last_matched_edge != nullptr) {
-                from_node = std::make_shared<node>(last_matched_edge->get_from_node());
-                to_node = std::make_shared<node>(last_matched_edge->get_to_node());
-            }
-
-            _steps.emplace_back(create_tm_operation_from_current_state(from_node, to_node, matched, result));
+            _steps.emplace_back(create_tm_operation_from_current_state(from_node_temp,
+                                                                       to_node_temp,
+                                                                       matched,
+                                                                       result,
+                                                                       before_state));
 
             return result;
         }

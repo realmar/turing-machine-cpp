@@ -129,7 +129,8 @@ int main(int argc, char** argv) {
 
     std::string out_directory = argv[1];
 
-    auto providers = tm_provider_collection::get_providers();
+    tm_provider_collection provider_collection;
+    auto providers = provider_collection.get_providers();
 
     for (auto&& provider : providers) {
         auto tm = provider->get_abstract_tm();
@@ -140,7 +141,7 @@ int main(int argc, char** argv) {
         auto edges = tm->get_edges();
 
         std::string contents = dot_file_template;
-        std::string dot_edges = "";
+        std::string dot_edges;
 
         replace(contents, "{name}", provider->get_tm_name());
         replace(contents, "{node_start}", start_node->get_name());
