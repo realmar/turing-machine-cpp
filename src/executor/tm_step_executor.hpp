@@ -28,6 +28,8 @@ namespace realmar::turing {
 
         std::shared_ptr<node> to_node_temp = nullptr, from_node_temp = nullptr;
 
+        bool _only_record_terminal_operations = false;
+
         inline std::vector<std::reference_wrapper<symbol<T>>> get_symbols() {
             std::vector<std::reference_wrapper<symbol<T>>> symbols;
             for (auto i = 0; i < _iterators.size(); ++i)
@@ -91,7 +93,7 @@ namespace realmar::turing {
                                                & before_states) {
 
             auto states = record_tape_states_and_head_pos_from_iterators();
-            return tm_operation<N, T>(step_count++,
+            return tm_operation<N, T>(step_count,
                                       from_node,
                                       to_node,
                                       matched,
@@ -130,6 +132,10 @@ namespace realmar::turing {
 
         const std::vector<tm_operation<N, T>>& get_steps() const override {
             return _steps;
+        }
+
+        void set_only_record_terminal_operations(bool value) {
+            _only_record_terminal_operations = value;
         }
 
         execution_result next() override {
@@ -198,11 +204,14 @@ namespace realmar::turing {
             // store metadata about performed operation
             //
 
-            _steps.emplace_back(create_tm_operation_from_current_state(from_node_temp,
-                                                                       to_node_temp,
-                                                                       matched,
-                                                                       result,
-                                                                       before_state));
+            step_count++;
+            if (!_only_record_terminal_operations || result != execution_result::not_finished) {
+                _steps.emplace_back(create_tm_operation_from_current_state(from_node_temp,
+                                                                           to_node_temp,
+                                                                           matched,
+                                                                           result,
+                                                                           before_state));
+            }
 
             return result;
         }

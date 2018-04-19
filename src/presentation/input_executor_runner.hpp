@@ -14,6 +14,7 @@ namespace realmar::turing {
     class input_executor_runner : public executor_runner {
     private:
         turing_machine<N, T> _turing_machine;
+        bool _only_show_step_count = false;
 
         const char* empty_symbol = "_";
 
@@ -66,81 +67,88 @@ namespace realmar::turing {
             auto steps = executor.get_steps();
             auto step_count = executor.get_step_count();
 
-            std::cout << "initial state:" << std::endl;
-            print_operation(executor.get_initial_state());
-            std::cout << std::endl;
+            if (!_only_show_step_count) {
+                std::cout << "initial state:" << std::endl;
+                print_operation(executor.get_initial_state());
+                std::cout << std::endl;
 
-            int last_shown_steps = 4;
-            std::cout << "last " << last_shown_steps << " operations:" << std::endl;
+                int last_shown_steps = 4;
+                std::cout << "last " << last_shown_steps << " operations:" << std::endl;
 
-            int i_start = 0;
-            if (last_shown_steps < steps.size()) i_start = steps.size() - last_shown_steps;
+                int i_start = 0;
+                if (last_shown_steps < steps.size()) i_start = steps.size() - last_shown_steps;
 
-            for (auto i = i_start; i < steps.size(); ++i) {
-                print_operation(steps.at(i));
-                std::cout << "--" << std::endl;
-            }
-            std::cout << std::endl;
-
-            std::cout << "transitions: ";
-            std::shared_ptr<edge<N, T>> last_edge = nullptr;
-            for (auto i = 0; i < steps.size(); ++i) {
-                auto edge = steps.at(i).transition_edge;
-                std::string from_node = "<?>", to_node = "<?>";
-                if (edge != nullptr) {
-                    from_node = steps.at(i).transition_edge->get_from_node()->get_name();
-                    to_node = steps.at(i).transition_edge->get_to_node()->get_name();
-                } else {
-                    if (last_edge != nullptr) {
-                        from_node = last_edge->get_to_node()->get_name();
-                        to_node = last_edge->get_to_node()->get_name();
-                    }
+                for (auto i = i_start; i < steps.size(); ++i) {
+                    print_operation(steps.at(i));
+                    std::cout << "--" << std::endl;
                 }
+                std::cout << std::endl;
 
-                std::cout << from_node << " -> ";
-                if (i + 1 == steps.size()) {
-                    std::cout << to_node;
-                }
-
-                if (edge != nullptr)
-                    last_edge = edge;
-            }
-            std::cout << std::endl << std::endl;
-
-            std::cout << "performed steps: " << step_count << std::endl;
-            std::cout << std::endl;
-            std::cout << "tape contents:" << std::endl;
-            int t_i = 0;
-            for (auto&& tape : _turing_machine.get_tapes()) {
-                auto w = tape.get_non_empty_contents();
-                std::map<T, int> w_counter;
-
-                std::cout << " tape " << t_i++ << ": ";
-                for (auto&& item : w) {
-                    auto symbol = item.get_symbol();
-
-                    std::string s_str = empty_symbol;
-                    if (!item.is_empty()) {
-                        s_str = std::to_string(symbol);
-
-                        auto item_in_counter = w_counter.find(symbol);
-                        if (item_in_counter != w_counter.end()) {
-                            item_in_counter->second++;
-                        } else {
-                            w_counter.emplace(symbol, 1);
+                std::cout << "transitions: ";
+                std::shared_ptr<edge<N, T>> last_edge = nullptr;
+                for (auto i = 0; i < steps.size(); ++i) {
+                    auto edge = steps.at(i).transition_edge;
+                    std::string from_node = "<?>", to_node = "<?>";
+                    if (edge != nullptr) {
+                        from_node = steps.at(i).transition_edge->get_from_node()->get_name();
+                        to_node = steps.at(i).transition_edge->get_to_node()->get_name();
+                    } else {
+                        if (last_edge != nullptr) {
+                            from_node = last_edge->get_to_node()->get_name();
+                            to_node = last_edge->get_to_node()->get_name();
                         }
                     }
-                    std::cout << s_str;
+
+                    std::cout << from_node << " -> ";
+                    if (i + 1 == steps.size()) {
+                        std::cout << to_node;
+                    }
+
+                    if (edge != nullptr)
+                        last_edge = edge;
                 }
+                std::cout << std::endl << std::endl;
+            }
 
-                if (w_counter.size() > 0) {
-                    std::cout << " | ";
+            std::cout << "performed steps: " << step_count << std::endl;
 
-                    for (auto&& counter : w_counter)
-                        std::cout << counter.first << " : " << counter.second << " | ";
-                }
-
+            if (!_only_show_step_count) {
                 std::cout << std::endl;
+                std::cout << "tape contents:" << std::endl;
+                int t_i = 0;
+                for (auto&& tape : _turing_machine.get_tapes()) {
+                    auto w = tape.get_non_empty_contents();
+                    std::map<T, int> w_counter;
+
+                    std::cout << " tape " << t_i++ << ": ";
+                    for (auto&& item : w) {
+                        auto symbol = item.get_symbol();
+
+                        std::string s_str = empty_symbol;
+                        if (!item.is_empty()) {
+                            s_str = std::to_string(symbol);
+
+                            auto item_in_counter = w_counter.find(symbol);
+                            if (item_in_counter != w_counter.end()) {
+                                item_in_counter->second++;
+                            } else {
+                                w_counter.emplace(symbol, 1);
+                            }
+                        }
+                        std::cout << s_str;
+                    }
+
+                    if (w_counter.size() > 0) {
+                        std::cout << " | ";
+
+                        for (auto&& counter : w_counter)
+                            std::cout << counter.first << " : " << counter.second << " | ";
+                    }
+
+                    std::cout << std::endl;
+                }
+            } else {
+
             }
         }
 
@@ -166,6 +174,8 @@ namespace realmar::turing {
                                                      "step",
                                                      "execute to finish",
                                                      "print current execution state",
+                                                     "only record terminal operations",
+                                                     "only show step count",
                                                      "halt"
                                              });
 
@@ -185,6 +195,13 @@ namespace realmar::turing {
                         p_exe_state = true;
                         break;
                     case 3:
+                        executor->set_only_record_terminal_operations(true);
+                        break;
+                    case 4:
+                        executor->set_only_record_terminal_operations(true);
+                        _only_show_step_count = true;
+                        break;
+                    case 5:
                         halt = true;
                         break;
                     default:
