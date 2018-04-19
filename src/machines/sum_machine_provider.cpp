@@ -67,6 +67,3 @@ realmar::turing::turing_machine<1, int> realmar::turing::sum_machine_provider::g
 
     return tm;
 }
-
-// create instance and register with factory
-static realmar::turing::sum_machine_provider prov;

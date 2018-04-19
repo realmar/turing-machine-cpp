@@ -1,7 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <vector>
 #include <tuple>
+#include <array>
+
 #include "tm_operation.hpp"
 #include "../graph/node.hpp"
 #include "../turing_machine.hpp"
@@ -10,7 +13,7 @@
 #include "tm_executor.hpp"
 
 namespace realmar::turing {
-#define tape_states_head_pos_tuple std::tuple<std::array<word<std::shared_ptr<T>>, N>, std::array<int, N>>
+#define tape_states_head_pos_tuple std::tuple<std::array<word<T>, N>, std::array<int, N>>
 
     template<int N, typename T>
     class tm_step_executor : public tm_executor<N, T> {
@@ -25,25 +28,22 @@ namespace realmar::turing {
 
         std::shared_ptr<node> to_node_temp = nullptr, from_node_temp = nullptr;
 
-        inline std::array<symbol<T>*, N> get_symbols() {
-            std
-            ::array<symbol<T>*, N> symbols;
+        inline std::vector<std::reference_wrapper<symbol<T>>> get_symbols() {
+            std::vector<std::reference_wrapper<symbol<T>>> symbols;
             for (auto i = 0; i < _iterators.size(); ++i)
-                symbols.at(i) = &_iterators.at(i).get_current_symbol();
+                symbols.emplace_back(std::ref(_iterators.at(i).get_current_symbol()));
             return symbols;
         }
 
         inline const std::shared_ptr<edge<N, T>>
         get_match(const std::vector<std::shared_ptr<edge<N, T>>>& edges,
-                  const std
-                  ::array<symbol<T>*, N>& symbols
-        ) {
+                  const std::vector<std::reference_wrapper<symbol<T>>>& symbols) {
             std::shared_ptr<edge<N, T>> matched = nullptr;
 
             for (auto&& edge : edges) {
                 const std::array<symbol<T>, N>& s = edge->get_read_symbols();
                 for (auto i = 0; i < s.size(); ++i) {
-                    if (s.at(i) != *symbols.at(i)) {
+                    if (s.at(i) != symbols.at(i)) {
                         matched = nullptr;
                         break;
                     }
@@ -58,7 +58,7 @@ namespace realmar::turing {
         };
 
         tape_states_head_pos_tuple record_tape_states_and_head_pos_from_iterators() {
-            std::array<word<std::shared_ptr<T >>, N> tape_states;
+            std::array<word<T>, N> tape_states;
             std::array<int, N> head_positions;
 
             int i = 0;
@@ -78,8 +78,7 @@ namespace realmar::turing {
                 ++i;
             }
 
-            return std
-            ::make_tuple(tape_states, head_positions);
+            return std::make_tuple(tape_states, head_positions);
         };
 
         inline tm_operation<N, T>
@@ -87,7 +86,9 @@ namespace realmar::turing {
                                                const std::shared_ptr<node> to_node,
                                                const std::shared_ptr<edge<N, T>> matched,
                                                const execution_result& result,
-                                               const tape_states_head_pos_tuple& before_states) {
+                                               const tape_states_head_pos_tuple
+
+                                               & before_states) {
 
             auto states = record_tape_states_and_head_pos_from_iterators();
             return tm_operation<N, T>(step_count++,
@@ -173,9 +174,11 @@ namespace realmar::turing {
                 auto move_directions = matched->get_move_directions();
 
                 for (auto i = 0; i < write_symbols.size(); ++i) {
-                    auto symbol = symbols.at(i);
-                    auto replace_symbol = write_symbols.at(i).get_symbol();
-                    symbol->set_symbol(replace_symbol);
+                    auto& symbol = symbols.at(i);
+                    auto& replace_symbol = write_symbols.at(i);
+
+                    symbol.get().set_symbol(replace_symbol);
+                    symbol.get().set_empty(replace_symbol.is_empty());
 
                     auto md = move_directions.at(i);
                     switch (md) {

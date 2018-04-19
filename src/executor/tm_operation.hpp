@@ -16,8 +16,8 @@ namespace realmar::turing {
         const std::shared_ptr<edge<N, T>> transition_edge;
         const execution_result exe_result;
 
-        const std::array<word<std::shared_ptr<T>>, N> tape_states_before;
-        const std::array<word<std::shared_ptr<T>>, N> tape_states_after;
+        const std::array<word<T>, N> tape_states_before;
+        const std::array<word<T>, N> tape_states_after;
 
         const std::array<int, N> head_positions_before;
         const std::array<int, N> head_positions_after;
@@ -27,8 +27,8 @@ namespace realmar::turing {
                      const std::shared_ptr<node>& to_node,
                      const std::shared_ptr<edge<N, T>> edge,
                      const execution_result exe_result,
-                     const std::array<word<std::shared_ptr<T>>, N> tape_states_before,
-                     const std::array<word<std::shared_ptr<T>>, N> tape_states_after,
+                     const std::array<word<T>, N> tape_states_before,
+                     const std::array<word<T>, N> tape_states_after,
                      const std::array<int, N> head_positions_before,
                      const std::array<int, N> head_positions_after) : from_node(from_node),
                                                                       to_node(to_node),

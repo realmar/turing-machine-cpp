@@ -21,8 +21,8 @@ namespace realmar::turing {
         std::vector<symbol<std::string>> symbols_to_string(const std::array<symbol<T>, N>& symbols) {
             std::vector<symbol<std::string>> syms;
             for (auto&& rs : symbols) {
-                if (rs.get_symbol() != nullptr) {
-                    syms.emplace_back(symbol(std::to_string(*rs.get_symbol())));
+                if (!rs.is_empty()) {
+                    syms.emplace_back(symbol(std::to_string(rs.get_symbol())));
                 } else {
                     syms.emplace_back(symbol<std::string>());
                 }

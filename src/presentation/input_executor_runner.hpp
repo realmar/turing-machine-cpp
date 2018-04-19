@@ -15,9 +15,11 @@ namespace realmar::turing {
     private:
         turing_machine<N, T> _turing_machine;
 
+        const char* empty_symbol = "_";
+
         inline void print_word(const tm_operation<N, T>& operation,
                                const std::shared_ptr<node>& node,
-                               const word<std::shared_ptr<T>>& word,
+                               const word<T>& word,
                                const int& head_position) {
             for (auto j = 0; j < word.size(); ++j) {
                 bool is_head_pos = j == head_position;
@@ -26,9 +28,9 @@ namespace realmar::turing {
                 if (is_head_pos)
                     std::cout << "|" << node_name << "|";
                 auto s = word.at(j);
-                std::string s_str = "⌊⌋";
-                if (s != nullptr)
-                    s_str = std::to_string(*s);
+                std::string s_str = empty_symbol;
+                if (!s.is_empty())
+                    s_str = std::to_string(s.get_symbol());
 
                 std::cout << s_str;
             }
@@ -115,13 +117,20 @@ namespace realmar::turing {
 
                 std::cout << " tape " << t_i++ << ": ";
                 for (auto&& item : w) {
-                    std::cout << item;
-                    auto item_in_counter = w_counter.find(item);
-                    if (item_in_counter != w_counter.end()) {
-                        item_in_counter->second++;
-                    } else {
-                        w_counter.emplace(item, 1);
+                    auto symbol = item.get_symbol();
+
+                    std::string s_str = empty_symbol;
+                    if (!item.is_empty()) {
+                        s_str = std::to_string(symbol);
+
+                        auto item_in_counter = w_counter.find(symbol);
+                        if (item_in_counter != w_counter.end()) {
+                            item_in_counter->second++;
+                        } else {
+                            w_counter.emplace(symbol, 1);
+                        }
                     }
+                    std::cout << s_str;
                 }
 
                 if (w_counter.size() > 0) {

@@ -8,7 +8,7 @@ namespace realmar::turing {
     template<typename T>
     class tape {
     private:
-        std::shared_ptr<tape_cell<T>> _first_cell;
+        std::shared_ptr<tape_cell<T>> _first_cell = nullptr;
 
     public:
         virtual ~tape() = default;
@@ -20,7 +20,10 @@ namespace realmar::turing {
 
             tape_iterator<T> iterator(_first_cell);
             for (auto w : word) {
-                iterator.get_current_symbol().set_symbol(std::make_shared<T>(w));
+                symbol<T>& symbol = iterator.get_current_symbol();
+                symbol.set_symbol(w);
+                symbol.set_empty(w.is_empty());
+
                 iterator.move_next();
             }
         }
@@ -29,7 +32,7 @@ namespace realmar::turing {
             return tape_iterator<T>(_first_cell);
         }
 
-        word<std::shared_ptr<T>> get_tape_contents() {
+        word<T> get_tape_contents() {
             tape_iterator<T> iterator(_first_cell);
 
             // iterate back until we find a nullptr
@@ -39,9 +42,9 @@ namespace realmar::turing {
             }
 
             // move next and write all symbols into word until we find a nullptr
-            word<std::shared_ptr<T>> w;
+            word<T> w;
             while (true) {
-                w.emplace_back(iterator.get_current_symbol().get_symbol());
+                w.emplace_back(iterator.get_current_symbol());
 
                 if (iterator.get_current_cell().get_next() == nullptr) break;
                 iterator.move_next();
@@ -54,7 +57,7 @@ namespace realmar::turing {
             auto contents = get_tape_contents();
             word<T> w;
             for (auto&& item : contents) {
-                if (item != nullptr) w.emplace_back(*item);
+                if (!item.is_empty()) w.emplace_back(item);
             }
 
             return w;

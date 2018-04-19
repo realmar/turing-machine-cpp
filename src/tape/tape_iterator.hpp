@@ -6,7 +6,7 @@ namespace realmar::turing {
     template<typename T>
     class tape_iterator {
     private:
-        std::shared_ptr<tape_cell<T>> _current_cell;
+        std::shared_ptr<tape_cell<T>> _current_cell = nullptr;
 
     public:
         virtual ~tape_iterator() = default;

@@ -53,6 +53,3 @@ realmar::turing::turing_machine<2, int> realmar::turing::subtract_machine_provid
 
     return tm;
 }
-
-// create instance and register with factory
-static realmar::turing::subtract_machine_provider prov;

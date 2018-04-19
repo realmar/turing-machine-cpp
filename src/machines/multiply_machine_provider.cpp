@@ -127,6 +127,3 @@ realmar::turing::turing_machine<3, int> realmar::turing::multiply_machine_provid
 
     return tm;
 }
-
-// create instance and register with factory
-static realmar::turing::multiply_machine_provider prov;

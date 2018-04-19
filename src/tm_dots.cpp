@@ -64,10 +64,10 @@ bool replace(std::string& str, const std::string& from, const std::string& to) {
 }
 
 std::string to_string(const symbol<std::string>& symbol) {
-    if (symbol.get_symbol() == nullptr) {
+    if (symbol.is_empty()) {
         return dot_empty_symbol;
     } else {
-        return *symbol.get_symbol();
+        return symbol.get_symbol();
     }
 }
 
