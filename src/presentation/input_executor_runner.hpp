@@ -17,20 +17,20 @@ namespace realmar::turing {
 		turing_machine<N, T> _turing_machine;
 		bool _only_show_step_count = false;
 
-		const char* empty_symbol = "_";
+		const char* _empty_symbol = "_";
 
 		void print_word(const tm_operation<N, T>& operation,
 			const std::shared_ptr<node>& node,
 			const word<T>& word,
 			const int& head_position) {
 			for (auto j = 0; j < word.size(); ++j) {
-				bool is_head_pos = j == head_position;
+				const auto is_head_pos = j == head_position;
 				std::string node_name = "q?";
 				if (node != nullptr) node_name = node->get_name();
 				if (is_head_pos)
 					std::cout << "|" << node_name << "|";
 				auto s = word.at(j);
-				std::string s_str = empty_symbol;
+				std::string s_str = _empty_symbol;
 				if (!s.is_empty())
 					s_str = std::to_string(s.get_symbol());
 
@@ -74,7 +74,7 @@ namespace realmar::turing {
 				print_operation(executor.get_initial_state());
 				std::cout << std::endl;
 
-				int last_shown_steps = 4;
+				const auto last_shown_steps = 4;
 				std::cout << "last " << last_shown_steps << " operations:" << std::endl;
 
 				int i_start = 0;
@@ -118,7 +118,7 @@ namespace realmar::turing {
 			if (!_only_show_step_count) {
 				std::cout << std::endl;
 				std::cout << "tape contents:" << std::endl;
-				int t_i = 0;
+				auto t_i = 0;
 				for (auto&& tape : _turing_machine.get_tapes()) {
 					auto w = tape.get_non_empty_contents();
 					std::map<T, int> w_counter;
@@ -127,13 +127,13 @@ namespace realmar::turing {
 					for (auto&& item : w) {
 						auto symbol = item.get_symbol();
 
-						std::string s_str = empty_symbol;
+						std::string s_str = _empty_symbol;
 						if (!item.is_empty()) {
 							s_str = std::to_string(symbol);
 
 							auto item_in_counter = w_counter.find(symbol);
 							if (item_in_counter != w_counter.end()) {
-								item_in_counter->second++;
+								++item_in_counter->second;
 							}
 							else {
 								w_counter.emplace(symbol, 1);
@@ -142,7 +142,7 @@ namespace realmar::turing {
 						std::cout << s_str;
 					}
 
-					if (w_counter.size() > 0) {
+					if (!w_counter.empty()) {
 						std::cout << " | ";
 
 						for (auto&& counter : w_counter)
@@ -175,7 +175,7 @@ namespace realmar::turing {
 
 			// REPL loop
 			while (true) {
-				int choice = get_user_choice({
+				const auto choice = get_user_choice({
 					/* 0 */ "step",
 					/* 1 */ "execute to finish",
 					/* 2 */ "print current execution state",
@@ -185,9 +185,10 @@ namespace realmar::turing {
 					/* 6 */ "halt"
 					});
 
-				bool measure_perf = false;
-				bool halt = false;
-				bool p_exe_state = false;
+				auto measure_perf = false;
+				auto halt = false;
+				auto p_exe_state = false;
+
 				switch (choice) {
 				case 0:
 					executor->next();
@@ -226,9 +227,9 @@ namespace realmar::turing {
 				if (measure_perf)
 				{
 					std::cout << "Mesuring performance ..." << std::endl;
-					auto start = std::chrono::steady_clock::now();
+					const auto start = std::chrono::steady_clock::now();
 					executor->execute_to_finish();
-					auto end = std::chrono::steady_clock::now();
+					const auto end = std::chrono::steady_clock::now();
 
 					const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 					const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(milliseconds);

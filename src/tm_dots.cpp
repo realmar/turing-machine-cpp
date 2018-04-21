@@ -71,7 +71,7 @@ const char* dot_empty_symbol = "⌊⌋";
 
 // https://stackoverflow.com/questions/3418231/replace-part-of-a-string-with-another-string
 bool replace(std::string& str, const std::string& from, const std::string& to) {
-	size_t start_pos = str.find(from);
+	const auto start_pos = str.find(from);
 	if (start_pos == std::string::npos)
 		return false;
 	str.replace(start_pos, from.length(), to);
@@ -123,7 +123,7 @@ std::string generate_label(const std::shared_ptr<abstract_edge>& edge) {
 		}
 	}
 
-	std::string label = read;
+	auto label = read;
 	label += "/";
 	label += write;
 	label += ",";
@@ -143,16 +143,16 @@ int main(int argc, char** argv) {
 	print_copyright();
 	if (!validate_sanity_of_args(argc, argv)) return 1;
 
-	std::string out_directory = argv[1];
+	const std::string out_directory = argv[1];
 
 	tm_provider_collection provider_collection;
 	auto providers = provider_collection.get_providers();
 
 	for (auto&& provider : providers) {
-		auto tm = provider->get_abstract_tm();
+		const auto tm = provider->get_abstract_tm();
 
-		auto start_node = tm->get_start_node();
-		auto final_node = tm->get_final_node();
+		const auto start_node = tm->get_start_node();
+		const auto final_node = tm->get_final_node();
 		auto nodes = tm->get_nodes();
 		auto edges = tm->get_edges();
 
@@ -200,7 +200,7 @@ int main(int argc, char** argv) {
 
 		replace(contents, "{edges}", dot_edges);
 
-		std::locale loc;
+		const std::locale loc;
 		std::string filename;
 		for (auto&& elem : provider->get_tm_name()) {
 			auto lower = std::tolower(elem, loc);
@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
 		replace(filename, " ", "_");
 		filename.append(".dot");
 
-		std::string fullpath = out_directory;
+		auto fullpath = out_directory;
 		fullpath += get_platform_path_separator();
 		fullpath += filename;
 

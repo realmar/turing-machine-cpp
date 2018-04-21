@@ -15,8 +15,8 @@ namespace realmar::turing {
 		const std::array<symbol<T>, N> _write_symbols;
 		const std::array<move_direction, N> _move_directions;
 
-		const std::shared_ptr<node> from_node;
-		const std::shared_ptr<node> to_node;
+		const std::shared_ptr<node> _from_node;
+		const std::shared_ptr<node> _to_node;
 
 		std::vector<symbol<std::string>> symbols_to_string(const std::array<symbol<T>, N>& symbols) {
 			std::vector<symbol<std::string>> syms;
@@ -38,18 +38,18 @@ namespace realmar::turing {
 		edge(const std::shared_ptr<node>& from_node,
 			const std::shared_ptr<node>& to_node,
 			const edge_args<N, T>& args) :
-			from_node(from_node),
-			to_node(to_node),
 			_read_symbols(args.read_symbols),
 			_write_symbols(args.write_symbols),
-			_move_directions(args.move_directions) {}
+			_move_directions(args.move_directions),
+			_from_node(from_node),
+			_to_node(to_node) {}
 
 		const std::shared_ptr<node>& get_from_node() const override {
-			return from_node;
+			return _from_node;
 		}
 
 		const std::shared_ptr<node>& get_to_node() const override {
-			return to_node;
+			return _to_node;
 		}
 
 		const std::array<symbol<T>, N>& get_read_symbols() const {

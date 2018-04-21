@@ -12,10 +12,12 @@ int main() {
 	auto providers = provider_collection.get_providers();
 
 	std::vector<std::string> machine_names;
+	machine_names.reserve(providers.size());
+
 	for (auto&& provider : providers)
 		machine_names.emplace_back(provider->get_tm_name());
 
-	auto machine_i = get_user_choice(machine_names);
+	const auto machine_i = get_user_choice(machine_names);
 
 	auto executor = providers.at(machine_i)->get_runner();
 	executor->run();

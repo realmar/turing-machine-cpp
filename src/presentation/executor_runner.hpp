@@ -2,5 +2,6 @@
 
 class executor_runner {
 public:
-    virtual void run() = 0;
+	virtual ~executor_runner() = default;
+	virtual void run() = 0;
 };

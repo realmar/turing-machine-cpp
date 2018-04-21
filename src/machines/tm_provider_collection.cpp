@@ -7,12 +7,12 @@ using namespace realmar::turing;
 
 #define REGISTER_PROVIDER(name) _providers.emplace_back(std::make_shared<name##_machine_provider>());
 
-const provider_list& realmar::turing::tm_provider_collection::get_providers() {
-    return _providers;
+const provider_list& tm_provider_collection::get_providers() const {
+	return _providers;
 }
 
 tm_provider_collection::tm_provider_collection() {
-    REGISTER_PROVIDER(multiply)
-    REGISTER_PROVIDER(subtract)
-    REGISTER_PROVIDER(sum)
+	REGISTER_PROVIDER(multiply)
+		REGISTER_PROVIDER(subtract)
+		REGISTER_PROVIDER(sum)
 }

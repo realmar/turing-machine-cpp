@@ -22,7 +22,7 @@ namespace realmar::turing {
 		std::shared_ptr<node> _current_node;
 
 		std::shared_ptr<tm_operation<N, T>> _initial_state;
-		int step_count = -1;
+		int _step_count = -1;
 		std::vector<tm_operation<N, T>> _steps;
 
 		std::shared_ptr<node> to_node_temp = nullptr, from_node_temp = nullptr;
@@ -30,16 +30,20 @@ namespace realmar::turing {
 		bool _only_record_terminal_operations = false;
 		bool _only_record_step_count = false;
 
-		inline std::vector<std::reference_wrapper<symbol<T>>> get_symbols() {
+		std::vector<std::reference_wrapper<symbol<T>>> get_symbols() {
 			std::vector<std::reference_wrapper<symbol<T>>> symbols;
+			symbols.reserve(_iterators.size());
+
 			for (auto i = 0; i < _iterators.size(); ++i)
 				symbols.emplace_back(std::ref(_iterators.at(i).get_current_symbol()));
+
 			return symbols;
 		}
 
-		inline const std::shared_ptr<edge<N, T>>
-			get_match(const std::vector<std::shared_ptr<edge<N, T>>>& edges,
-				const std::vector<std::reference_wrapper<symbol<T>>>& symbols) {
+		std::shared_ptr<edge<N, T>> get_match(
+			const std::vector<std::shared_ptr<edge<N, T>>>& edges,
+			const std::vector<std::reference_wrapper<symbol<T>>>& symbols) {
+
 			std::shared_ptr<edge<N, T>> matched = nullptr;
 
 			for (auto&& edge : edges) {
@@ -63,7 +67,7 @@ namespace realmar::turing {
 			std::array<word<T>, N> tape_states;
 			std::array<int, N> head_positions;
 
-			int i = 0;
+			auto i = 0;
 			for (auto&& iterator : _iterators) {
 				int head_pos = 0;
 
@@ -83,17 +87,17 @@ namespace realmar::turing {
 			return std::make_tuple(tape_states, head_positions);
 		};
 
-		inline tm_operation<N, T>
-			create_tm_operation_from_current_state(const std::shared_ptr<node> from_node,
+		tm_operation<N, T>
+			create_tm_operation_from_current_state(
+				const std::shared_ptr<node> from_node,
 				const std::shared_ptr<node> to_node,
 				const std::shared_ptr<edge<N, T>> matched,
 				const execution_result& result,
-				const tape_states_head_pos_tuple
-
-				& before_states) {
+				const tape_states_head_pos_tuple& before_states) {
 
 			auto states = record_tape_states_and_head_pos_from_iterators();
-			return tm_operation<N, T>(step_count,
+			return tm_operation<N, T>(
+				_step_count,
 				from_node,
 				to_node,
 				matched,
@@ -106,8 +110,7 @@ namespace realmar::turing {
 
 	public:
 		virtual ~tm_step_executor() = default;
-
-		tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
+		explicit tm_step_executor(turing_machine<N, T>& tm) : _turing_machine(tm),
 			_current_node(_turing_machine.get_start_node()) {
 			for (auto&& tape : tm.get_tapes()) {
 				_iterators.emplace_back(tape.get_iterator());
@@ -123,7 +126,7 @@ namespace realmar::turing {
 		}
 
 		int get_step_count() const override {
-			return step_count;
+			return _step_count;
 		}
 
 		const tm_operation<N, T>& get_initial_state() const override {
@@ -211,7 +214,7 @@ namespace realmar::turing {
 			// store metadata about performed operation
 			//
 
-			step_count++;
+			_step_count++;
 			if (!_only_record_step_count && !_only_record_terminal_operations || result != not_finished) {
 				_steps.emplace_back(create_tm_operation_from_current_state(from_node_temp,
 					to_node_temp,
