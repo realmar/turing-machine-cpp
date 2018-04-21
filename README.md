@@ -6,15 +6,27 @@ are 3 concrete turing machines implemented, you can read more below.
 
 ### Diagram
 
+Constrains applying to all machines: all number need to be represented
+using unary encoding. For example you would encode `2 ⚬ 3` as follow: `001000`.
+The process of encoding the numbers is abstracted by the application, so you
+would enter actual numbers and not their unary encodings.
+
 Multiplication Machine, modeled using 3 tapes:
+
+Constrain: both number must be positive or `0`.
 
 ![mult](docs/multiply_machine.svg)
 
 Sum Machine, modeled using 1 tape:
 
+Constrain: both number must be positive or `0`.
+
 ![mult](docs/sum_machine.svg)
 
 Subtraction Machine, modeled using 2 tapes:
+
+Constrains: both number must be positive or `0` and
+the first number has to be bigger then the second.
 
 ![mult](docs/subtract_machine.svg)
 
