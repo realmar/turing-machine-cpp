@@ -28,7 +28,7 @@ namespace realmar::turing {
 			const std::shared_ptr<node>& node,
 			const word<T>& word,
 			const int& head_position) {
-			for (auto j = 0; j < word.size(); ++j) {
+			for (unsigned int j = 0; j < word.size(); ++j) {
 				const auto is_head_pos = j == head_position;
 				std::string node_name = "q?";
 				if (node != nullptr) node_name = node->get_name();
@@ -54,7 +54,7 @@ namespace realmar::turing {
 				to_node = operation.to_node;
 			}
 
-			for (auto i = 0; i < operation.tape_states_before.size(); ++i) {
+			for (unsigned int i = 0; i < operation.tape_states_before.size(); ++i) {
 				std::cout << "tape " << i << ": ";
 				print_word(operation, from_node, operation.tape_states_before.at(i),
 					operation.head_positions_before.at(i));
@@ -85,7 +85,7 @@ namespace realmar::turing {
 					std::cout << "last " << last_shown_steps << " operations:" << std::endl;
 				}
 
-				auto i_start = 0;
+				size_t i_start = 0;
 				if (last_shown_steps < steps.size()) i_start = steps.size() - last_shown_steps;
 
 				for (auto i = i_start; i < steps.size(); ++i) {
@@ -96,7 +96,7 @@ namespace realmar::turing {
 
 				std::cout << "transitions: ";
 				std::shared_ptr<edge<N, T>> last_edge = nullptr;
-				for (auto i = 0; i < steps.size(); ++i) {
+				for (unsigned int i = 0; i < steps.size(); ++i) {
 					auto edge = steps.at(i).transition_edge;
 					std::string from_node = "<?>", to_node = "<?>";
 					if (edge != nullptr) {

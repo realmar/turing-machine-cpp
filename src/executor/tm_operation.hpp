@@ -39,7 +39,8 @@ namespace realmar::turing {
 			tape_states_before(tape_states_before),
 			tape_states_after(tape_states_after),
 			head_positions_before(head_positions_before),
-			head_positions_after(head_positions_after) {}
+			head_positions_after(head_positions_after) {
+		}
 
 		std::string get_execution_result_string() const {
 			switch (exe_result) {
@@ -50,6 +51,8 @@ namespace realmar::turing {
 			case cannot_finish:
 				return "cannot finished";
 			}
+
+			return "unknown";
 		}
 	};
 }

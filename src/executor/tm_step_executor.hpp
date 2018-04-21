@@ -34,7 +34,7 @@ namespace realmar::turing {
 			std::vector<std::reference_wrapper<symbol<T>>> symbols;
 			symbols.reserve(_iterators.size());
 
-			for (auto i = 0; i < _iterators.size(); ++i)
+			for (unsigned int i = 0; i < _iterators.size(); ++i)
 				symbols.emplace_back(std::ref(_iterators.at(i).get_current_symbol()));
 
 			return symbols;
@@ -48,7 +48,7 @@ namespace realmar::turing {
 
 			for (auto&& edge : edges) {
 				const std::array<symbol<T>, N>& s = edge->get_read_symbols();
-				for (auto i = 0; i < s.size(); ++i) {
+				for (unsigned int i = 0; i < s.size(); ++i) {
 					if (s.at(i) != symbols.at(i)) {
 						matched = nullptr;
 						break;
@@ -141,8 +141,7 @@ namespace realmar::turing {
 			_only_record_terminal_operations = value;
 		}
 
-		void set_only_record_step_count(bool value)
-		{
+		void set_only_record_step_count(bool value) {
 			_only_record_step_count = value;
 		}
 
@@ -177,19 +176,17 @@ namespace realmar::turing {
 					to_node_temp = _current_node;
 
 					result = finished;
-				}
-				else {
+				} else {
 					result = cannot_finish;
 				}
-			}
-			else {
+			} else {
 				from_node_temp = matched->get_from_node();
 				to_node_temp = matched->get_to_node();
 
 				const std::array<symbol<T>, N>& write_symbols = matched->get_write_symbols();
 				auto move_directions = matched->get_move_directions();
 
-				for (auto i = 0; i < write_symbols.size(); ++i) {
+				for (unsigned int i = 0; i < write_symbols.size(); ++i) {
 					auto& symbol = symbols.at(i);
 					auto& replace_symbol = write_symbols.at(i);
 

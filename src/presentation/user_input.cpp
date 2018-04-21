@@ -6,7 +6,7 @@ void realmar::turing::print_invalid_input() {
 }
 
 int realmar::turing::get_user_choice(std::vector<std::string> choices) {
-	auto input_i = -1;
+	long input_i = -1;
 
 	while (input_i == -1) {
 		std::cout << "Available commands:" << std::endl;
@@ -16,7 +16,8 @@ int realmar::turing::get_user_choice(std::vector<std::string> choices) {
 		std::cout << std::endl;
 
 		input_i = get_positive_number();
-		if (input_i > choices.size() - 1) {
+		const auto choices_size = static_cast<long>(choices.size());
+		if (input_i > choices_size - 1) {
 			print_invalid_input();
 			input_i = -1;
 		}
@@ -35,9 +36,8 @@ int realmar::turing::get_number() {
 		try {
 			input_i = std::stoi(input);
 			valid_input = true;
-		}
-		catch (const std::invalid_argument& e) {
-			std::cout << "Enter a valid number" << std::endl;
+		} catch (const std::invalid_argument& e) {
+			std::cout << "Enter a valid number: " << e.what() << std::endl;
 		}
 	}
 
