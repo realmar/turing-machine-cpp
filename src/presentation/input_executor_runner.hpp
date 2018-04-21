@@ -14,9 +14,14 @@ namespace realmar::turing {
 	template<int N, typename T>
 	class input_executor_runner : public executor_runner {
 	private:
-		turing_machine<N, T> _turing_machine;
-		bool _only_show_step_count = false;
+		enum output_mode {
+			DEFAULT,
+			ALL_OPS,
+			ONLY_STEPS
+		};
 
+		turing_machine<N, T> _turing_machine;
+		output_mode _output_mode = DEFAULT;
 		const char* _empty_symbol = "_";
 
 		void print_word(const tm_operation<N, T>& operation,
@@ -44,8 +49,7 @@ namespace realmar::turing {
 			if (operation.transition_edge != nullptr) {
 				from_node = operation.transition_edge->get_from_node();
 				to_node = operation.transition_edge->get_to_node();
-			}
-			else {
+			} else {
 				from_node = operation.from_node;
 				to_node = operation.to_node;
 			}
@@ -69,15 +73,19 @@ namespace realmar::turing {
 			auto steps = executor.get_steps();
 			auto step_count = executor.get_step_count();
 
-			if (!_only_show_step_count) {
+			if (_output_mode != ONLY_STEPS) {
 				std::cout << "initial state:" << std::endl;
 				print_operation(executor.get_initial_state());
 				std::cout << std::endl;
 
-				const auto last_shown_steps = 4;
-				std::cout << "last " << last_shown_steps << " operations:" << std::endl;
+				const auto last_shown_steps = _output_mode == ALL_OPS ? steps.size() : 4;
+				if (_output_mode == ALL_OPS) {
+					std::cout << "all operations:" << std::endl;
+				} else {
+					std::cout << "last " << last_shown_steps << " operations:" << std::endl;
+				}
 
-				int i_start = 0;
+				auto i_start = 0;
 				if (last_shown_steps < steps.size()) i_start = steps.size() - last_shown_steps;
 
 				for (auto i = i_start; i < steps.size(); ++i) {
@@ -94,8 +102,7 @@ namespace realmar::turing {
 					if (edge != nullptr) {
 						from_node = steps.at(i).transition_edge->get_from_node()->get_name();
 						to_node = steps.at(i).transition_edge->get_to_node()->get_name();
-					}
-					else {
+					} else {
 						if (last_edge != nullptr) {
 							from_node = last_edge->get_to_node()->get_name();
 							to_node = last_edge->get_to_node()->get_name();
@@ -115,7 +122,7 @@ namespace realmar::turing {
 
 			std::cout << "performed steps: " << step_count << std::endl;
 
-			if (!_only_show_step_count) {
+			if (_output_mode != ONLY_STEPS) {
 				std::cout << std::endl;
 				std::cout << "tape contents:" << std::endl;
 				auto t_i = 0;
@@ -134,8 +141,7 @@ namespace realmar::turing {
 							auto item_in_counter = w_counter.find(symbol);
 							if (item_in_counter != w_counter.end()) {
 								++item_in_counter->second;
-							}
-							else {
+							} else {
 								w_counter.emplace(symbol, 1);
 							}
 						}
@@ -151,15 +157,15 @@ namespace realmar::turing {
 
 					std::cout << std::endl;
 				}
-			}
-			else {
+			} else {
 
 			}
 		}
 
 	public:
 		explicit input_executor_runner(turing_machine<N, T>& tm)
-			: _turing_machine(tm) {}
+			: _turing_machine(tm) {
+		}
 
 		void run() override {
 			std::cout << "Enter the two numbers on which the operation should be performed" << std::endl;
@@ -181,8 +187,9 @@ namespace realmar::turing {
 					/* 2 */ "print current execution state",
 					/* 3 */ "only record terminal operations",
 					/* 4 */ "only show step count",
-					/* 5 */ "measure performance",
-					/* 6 */ "halt"
+					/* 5 */ "show all steps",
+					/* 6 */ "measure performance",
+					/* 7 */ "halt"
 					});
 
 				auto measure_perf = false;
@@ -207,14 +214,19 @@ namespace realmar::turing {
 					break;
 				case 4:
 					executor->set_only_record_step_count(true);
-					_only_show_step_count = true;
+					_output_mode = ONLY_STEPS;
 					break;
 				case 5:
+					executor->set_only_record_terminal_operations(false);
+					executor->set_only_record_step_count(false);
+					_output_mode = ALL_OPS;
+					break;
+				case 6:
 					executor->set_only_record_step_count(true);
 					measure_perf = true;
 					halt = true;
 					break;
-				case 6:
+				case 7:
 					halt = true;
 					break;
 				default:
@@ -224,9 +236,8 @@ namespace realmar::turing {
 
 				if (p_exe_state) print_executor_state(*executor);
 
-				if (measure_perf)
-				{
-					std::cout << "Mesuring performance ..." << std::endl;
+				if (measure_perf) {
+					std::cout << "Measuring performance ..." << std::endl;
 					const auto start = std::chrono::steady_clock::now();
 					executor->execute_to_finish();
 					const auto end = std::chrono::steady_clock::now();
@@ -234,8 +245,8 @@ namespace realmar::turing {
 					const auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 					const auto seconds = std::chrono::duration_cast<std::chrono::seconds>(milliseconds);
 
-					std::cout << "Execuing took: " << milliseconds.count() << "ms / " << seconds.count() << "s" << std::endl;
-					std::cout << "Performaned steps: " << executor->get_step_count() << std::endl;
+					std::cout << "Execution took: " << milliseconds.count() << "ms / " << seconds.count() << "s" << std::endl;
+					std::cout << "Performed steps: " << executor->get_step_count() << std::endl;
 				}
 
 				std::cout << std::endl;

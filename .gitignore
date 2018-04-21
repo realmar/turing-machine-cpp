@@ -265,3 +265,10 @@ __pycache__/
 
 # cmake
 cmake-build-debug
+cmake-build-release
+*.a
+*.o
+CMakeCache*
+CMakeFiles/
+cmake_install.cmake
+Makefile

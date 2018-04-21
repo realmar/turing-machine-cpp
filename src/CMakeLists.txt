@@ -34,3 +34,10 @@ add_executable(tm_dots
 
 target_link_libraries(tm machines presentation utils)
 target_link_libraries(tm_dots machines presentation utils)
+
+set_target_properties(tm tm_dots
+    PROPERTIES
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
